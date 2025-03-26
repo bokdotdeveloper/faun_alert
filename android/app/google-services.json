@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67188882942",
+    "project_id": "faun-alert",
+    "storage_bucket": "faun-alert.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67188882942:android:ebc41b5697ce9752e2d4af",
+        "android_client_info": {
+          "package_name": "com.example.faun_alert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhn4aLpv3LE8ul68r9lx-v44gewL0pkEo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

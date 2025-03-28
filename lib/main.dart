@@ -1,5 +1,4 @@
 import 'package:faun_alert/pages/main_page.dart';
-import 'package:faun_alert/pages/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 

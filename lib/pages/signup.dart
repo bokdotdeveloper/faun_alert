@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +16,16 @@ class _SignupState extends State<Signup> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  final TextEditingController firstnameController = TextEditingController();
+  final TextEditingController middlenameController = TextEditingController();
+  final TextEditingController lastnameController = TextEditingController();
+
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
   final FocusNode confirmPasswordFocusNode = FocusNode();
+  final FocusNode firstnameFocusNode = FocusNode();
+  final FocusNode middlenameFocusNode = FocusNode();
+  final FocusNode lastnameFocusNode = FocusNode();
 
   Future signUp() async {
     String email = emailController.text.trim();
@@ -25,29 +33,37 @@ class _SignupState extends State<Signup> {
 
     try {
       if (!isEmailValid(email)) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Invalid email address')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid email address')),
+          );
+        }
         return;
       } else if (!isPasswordValid(password)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password must be at least 6 characters'),
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password must be at least 6 characters'),
+            ),
+          );
+        }
         return;
       } else if (!isConfirmPasswordValid(
         password,
         confirmPasswordController.text.trim(),
       )) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Passwords do not match')),
+          );
+        }
         return;
       } else if (password.isEmpty || email.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please fill in all fields')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please fill in all fields')),
+          );
+        }
         return;
       } else {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -55,40 +71,49 @@ class _SignupState extends State<Signup> {
           password: password,
         );
 
-        // If successful, navigate to the next screen or show a success message
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Sign-up successful!')));
+        // Call the method to add user details to the database
+        await addUserDetails(
+          firstnameController.text.trim(),
+          middlenameController.text.trim(),
+          lastnameController.text.trim(),
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Sign-up successful!')));
+        }
       }
     } on FirebaseAuthException catch (e) {
-      // Handle specific Firebase authentication errors
-      String errorMessage;
-      if (e.code == 'email-already-in-use') {
-        errorMessage = 'Email already in use. Please try another.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'The email address is not valid.';
-      } else if (e.code == 'invalid-password') {
-        errorMessage = 'Password is too weak. Please choose a stronger one.';
-      } else if (e.code == 'email-already-exists'){
-        errorMessage = 'Email already exists. Please try another.';
-      } else if (e.code == 'operation-not-allowed') {
-        errorMessage = 'Operation not allowed. Please contact support.';
-      } else if (e.code == 'too-many-requests') {
-        errorMessage = 'Too many requests. Please try again later.';
-      } 
-      else {
-        errorMessage = 'An error occurred. Please try again.';
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message.toString())));
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('An unexpected error occurred.')),
+        );
+      }
+    }
+  }
 
-      // Show the error message in a SnackBar or AlertDialog
+  Future addUserDetails(
+    String firstname,
+    String middlename,
+    String lastname,
+  ) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').add({
+        'firstname': firstname,
+        'middlename': middlename,
+        'lastname': lastname,
+      });
+    } on FirebaseFirestore catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
-    } catch (e) {
-      // Handle any other errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An unexpected error occurred.')),
-      );
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
@@ -112,6 +137,12 @@ class _SignupState extends State<Signup> {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    firstnameController.dispose();
+    middlenameController.dispose();
+    lastnameController.dispose();
+    firstnameFocusNode.dispose();
+    middlenameFocusNode.dispose();
+    lastnameFocusNode.dispose();
     emailFocusNode.dispose();
     passwordFocusNode.dispose();
     confirmPasswordFocusNode.dispose();
@@ -139,7 +170,67 @@ class _SignupState extends State<Signup> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'Create an account to get started',
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                  ),
+
                   const SizedBox(height: 40),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      controller: firstnameController,
+                      decoration: InputDecoration(
+                        labelText: 'First Name',
+                        labelStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      controller: middlenameController,
+                      decoration: InputDecoration(
+                        labelText: 'Middle Name',
+                        labelStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      controller: lastnameController,
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        labelStyle: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: TextField(
@@ -150,16 +241,13 @@ class _SignupState extends State<Signup> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                        filled: true,
-                        fillColor: Colors.black.withOpacity(0.1),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide.none,
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: TextField(
@@ -170,17 +258,14 @@ class _SignupState extends State<Signup> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                        filled: true,
-                        fillColor: Colors.black.withOpacity(0.1),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide.none,
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                       obscureText: true,
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: TextField(
@@ -191,17 +276,14 @@ class _SignupState extends State<Signup> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                        filled: true,
-                        fillColor: Colors.black.withOpacity(0.1),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide.none,
-                        ),
+                        border: OutlineInputBorder(),
                       ),
                       obscureText: true,
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: GestureDetector(
@@ -225,7 +307,9 @@ class _SignupState extends State<Signup> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,

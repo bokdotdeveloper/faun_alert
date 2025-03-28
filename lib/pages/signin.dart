@@ -1,3 +1,4 @@
+import 'package:faun_alert/pages/forgot_password.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -98,12 +99,7 @@ class _SigninState extends State<Signin> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                        filled: true,
-                        fillColor: Colors.black.withOpacity(0.1),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide.none,
-                        ),
+                       border: OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -118,14 +114,35 @@ class _SigninState extends State<Signin> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                        filled: true,
-                        fillColor: Colors.black.withOpacity(0.1),
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide.none,
-                        ),
+                       border: OutlineInputBorder(),
                       ),
                       obscureText: true,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: GestureDetector(
+                      onTap: () => {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ForgotPassword();
+                          }
+                        ))
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),

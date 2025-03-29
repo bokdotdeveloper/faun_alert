@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class Signin extends StatefulWidget {
   final VoidCallback goToSignup;
-  const Signin({Key? key, required this.goToSignup}) : super(key: key);
+  const Signin({super.key, required this.goToSignup});
 
   @override
   State<Signin> createState() => _SigninState();

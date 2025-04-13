@@ -105,10 +105,15 @@ class _SignupState extends State<Signup> {
     String lastname,
   ) async {
     try {
-      await FirebaseFirestore.instance.collection('users').add({
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'uid': uid, // Explicitly store the UID as a field
         'firstname': firstname,
         'middlename': middlename,
         'lastname': lastname,
+        'role': 'User', // Default role
+        'dateCreated': DateTime.now(),
       });
     } on FirebaseFirestore catch (e) {
       ScaffoldMessenger.of(

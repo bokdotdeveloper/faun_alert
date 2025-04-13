@@ -29,9 +29,11 @@ class _SigninState extends State<Signin> {
         password: password,
       );
       // If successful, navigate to the next screen or show a success message
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Sign-in successful!')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign-in successful!')),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       // Handle specific Firebase authentication errors
       String errorMessage;
@@ -40,14 +42,18 @@ class _SigninState extends State<Signin> {
       } else if (e.code == 'invalid-email') {
         errorMessage = 'The email address is not valid.';
       } else {
-        errorMessage = 'An error occurred. Please try again.';
+        errorMessage = e.message != null ? e.message! : 'An unknown error occurred.';
       }
-
-      // Show the error message in a SnackBar or AlertDialog
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
-    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('An unexpected error occurred.')),
+        );
+      }
       // Handle any other errors
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An unexpected error occurred.')),

@@ -1,4 +1,5 @@
 import 'package:faun_alert/pages/account_page.dart';
+import 'package:faun_alert/file_report/file_report.dart';
 import 'package:faun_alert/pages/home_main.dart';
 import 'package:faun_alert/pages/law_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +18,7 @@ const _navBarItems = [
     activeIcon: Icon(Icons.home_rounded),
     label: 'Home',
   ),
-   BottomNavigationBarItem(
+  BottomNavigationBarItem(
     icon: Icon(Icons.gavel_outlined),
     activeIcon: Icon(Icons.gavel_rounded),
     label: 'Laws',
@@ -33,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final user = FirebaseAuth.instance.currentUser!;
 
-   // List of pages corresponding to each tab
+  // List of pages corresponding to each tab
   final List<Widget> _pages = [
     const HomeMain(), // Placeholder for Home Page
     const LawPage(), // Placeholder for Laws Page
@@ -46,29 +47,48 @@ class _HomePageState extends State<HomePage> {
     final bool isSmallScreen = width < 600;
     final bool isLargeScreen = width > 800;
 
-    return Scaffold( appBar: AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Logo on the left
-          Image.network(
-            'https://placehold.co/200x200/000000/FFFFFF/png', // Replace with your logo asset path
-            height: 40,
-            width: 40,
-          ),
-          // Notification bell on the right
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Add notification logic here
-              print('Notification bell pressed');
-            },
-          ),
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Logo on the left
+            Image.network(
+              'https://placehold.co/200x200/000000/FFFFFF/png', // Replace with your logo asset path
+              height: 40,
+              width: 40,
+            ),
+            // Notification bell on the right
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                // Add notification logic here
+                print('Notification bell pressed');
+              },
+            ),
+          ],
+        ),
       ),
-    ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return FileReport();
+              },
+            ),
+          );
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50.0),
+        ),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
       bottomNavigationBar:
           isSmallScreen
               ? BottomNavigationBar(
@@ -108,9 +128,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               const VerticalDivider(thickness: 1, width: 1),
               // This is the main content.
-              Expanded(
-                child: _pages[_selectedIndex],
-              ),
+              Expanded(child: _pages[_selectedIndex]),
             ],
           ),
         ),
@@ -118,15 +136,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-  // Text('signed in as: ${user.email!}'),
-              // MaterialButton(
-              //   onPressed: () {
-              //     FirebaseAuth.instance.signOut();
-              //   },
-              //   color: Colors.blue,
-              //   textColor: Colors.white,
-              //   padding: const EdgeInsets.all(16),
-              //   child: const Text('Sign Out'),
-              // ),

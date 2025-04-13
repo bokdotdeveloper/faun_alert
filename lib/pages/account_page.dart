@@ -1,5 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AccountPage extends StatefulWidget {
@@ -10,6 +10,36 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+
+  final user = FirebaseAuth.instance.currentUser!;
+  String? firstName;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFirstName();
+  }
+
+  Future _fetchFirstName() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (doc.exists) {
+        setState(() {
+          firstName = doc.data()?['firstName'] ?? 'User';
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'An error occurred')),
+        );
+      }
+    }
+  }
 
   Future _signOut() async {
     try {
@@ -29,82 +59,60 @@ class _AccountPageState extends State<AccountPage> {
           child: ListView(
             children: [
               _SingleSection(
-                  title: "General",
-                  children: [
-                    _CustomListTile(
-                        title: "Notifications",
-                        icon: Icons.notifications_none_rounded),
-                    const _CustomListTile(
-                        title: "Security Status",
-                        icon: CupertinoIcons.lock_shield),
-                  ],
-                ),
-                const Divider(),
-                const _SingleSection(
-                  title: "Organization",
-                  children: [
-                    _CustomListTile(
-                        title: "Profile", icon: Icons.person_outline_rounded),
-                    _CustomListTile(
-                        title: "Messaging", icon: Icons.message_outlined),
-                    _CustomListTile(
-                        title: "Calling", icon: Icons.phone_outlined),
-                    _CustomListTile(
-                        title: "People", icon: Icons.contacts_outlined),
-                    _CustomListTile(
-                        title: "Calendar", icon: Icons.calendar_today_rounded)
-                  ],
-                ),
-                const Divider(),
-                _SingleSection(
-                  children: [
-                    _CustomListTile(
-                        title: "Help & Feedback",
-                        icon: Icons.help_outline_rounded),
-                    _CustomListTile(
-                        title: "About", icon: Icons.info_outline_rounded),
-                    _CustomListTile(
-                        title: "Sign out", icon: Icons.exit_to_app_rounded, onTap: _signOut),
-                        
-                  ],
-                ),
+                title: "General",
+                children: [
+                  _CustomListTile(
+                    title: "Notifications",
+                    icon: Icons.notifications_none_rounded,
+                  ),
+                  _CustomListTile(
+                    title: "Profile",
+                    icon: Icons.person_outline_rounded,
+                  ),
+                ],
+              ),
+              const Divider(),
+              _SingleSection(
+                children: [
+                  _CustomListTile(
+                    title: "Help & Feedback",
+                    icon: Icons.help_outline_rounded,
+                  ),
+                  _CustomListTile(
+                    title: "About",
+                    icon: Icons.info_outline_rounded,
+                  ),
+                  _CustomListTile(
+                    title: "Sign out",
+                    icon: Icons.exit_to_app_rounded,
+                    onTap: _signOut,
+                  ),
+                ],
+              ),
             ],
           ),
-        )
+        ),
       ),
     );
   }
 }
 
-
-
-
 class _CustomListTile extends StatelessWidget {
   final String title;
   final IconData icon;
   final VoidCallback? onTap;
-  const _CustomListTile(
-      {Key? key, required this.title, required this.icon, this.onTap})
-      : super(key: key);
+  const _CustomListTile({required this.title, required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      leading: Icon(icon),
-      onTap: onTap,
-    );
+    return ListTile(title: Text(title), leading: Icon(icon), onTap: onTap);
   }
 }
 
 class _SingleSection extends StatelessWidget {
   final String? title;
   final List<Widget> children;
-  const _SingleSection({
-    Key? key,
-    this.title,
-    required this.children,
-  }) : super(key: key);
+  const _SingleSection({this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +128,7 @@ class _SingleSection extends StatelessWidget {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
-        Column(
-          children: children,
-        ),
+        Column(children: children),
       ],
     );
   }

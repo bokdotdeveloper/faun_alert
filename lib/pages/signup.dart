@@ -112,7 +112,7 @@ class _SignupState extends State<Signup> {
         'firstname': firstname,
         'middlename': middlename,
         'lastname': lastname,
-        'role': 'User', // Default role
+        'role': 'user', // Default role
         'dateCreated': DateTime.now(),
       });
     } on FirebaseFirestore catch (e) {

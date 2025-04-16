@@ -14,9 +14,11 @@ class _HomeMainState extends State<HomeMain> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: ElevatedButton(onPressed: () => {
-          FirebaseAuth.instance.signOut(),
-        }, child: Text('Logout')), // Placeholder for the admin home main content
+        child: Center(
+          child: ElevatedButton(onPressed: () => {
+            FirebaseAuth.instance.signOut(),
+          }, child: Text('Logout')),
+        ), // Placeholder for the admin home main content
       ),
     );
   }

@@ -1,4 +1,6 @@
+import 'package:faun_alert/admin/animals/animal_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeMain extends StatefulWidget {
   const HomeMain({super.key});
@@ -8,112 +10,202 @@ class HomeMain extends StatefulWidget {
 }
 
 class _HomeMainState extends State<HomeMain> {
+  final CollectionReference<Map<String, dynamic>> _animalCollection =
+      FirebaseFirestore.instance.collection('animals');
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 120,
-              child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                buildCard(),
-                buildCard(),
-                buildCard(),
-                buildCard(),
-                buildCard(),
-              ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "INCIDENTS",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _articles.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final item = _articles[index];
-                  return Container(
-                    height: 136,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8.0,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE0E0E0)),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.title,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "${item.author} · ${item.postedOn}",
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children:
-                                    [
-                                      Icons.bookmark_border_rounded,
-                                      Icons.share,
-                                      Icons.more_vert,
-                                    ].map((e) {
-                                      return InkWell(
-                                        onTap: () {},
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 8.0,
-                                          ),
-                                          child: Icon(e, size: 16),
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 180,
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: _animalCollection.snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    final animals = snapshot.data?.docs ?? [];
+                    if (animals.isEmpty) {
+                      return const Text('No animals found.');
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: animals.length,
+                        scrollDirection: Axis.horizontal,
+                        separatorBuilder:
+                            (context, index) => const SizedBox(width: 2),
+                        itemBuilder: (context, index) {
+                          final animal = animals[index];
+                          final data = animal.data();
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AnimalProfile(
+                                      animalData: data,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                shadowColor: Colors.lightGreen,
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      width: 120,
+                                      height: 120,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: Container(
+                                          
+                                          child:
+                                              data['image_url'] != null &&
+                                                      data['image_url']
+                                                          .toString()
+                                                          .isNotEmpty
+                                                  ? ClipRRect(
+                                                    borderRadius: BorderRadius.circular(
+                                                      8,
+                                                    ),
+                                                    child: Image.network(
+                                                      data['image_url'],
+                                                      width: 50,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder:
+                                                          (
+                                                            context,
+                                                            error,
+                                                            stackTrace,
+                                                          ) => const Icon(
+                                                            Icons.image_not_supported,
+                                                            size: 50,
+                                                          ),
+                                                    ),
+                                                  )
+                                                  : const Icon(Icons.image, size: 50),
                                         ),
-                                      );
-                                    }).toList(),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      (data['name'] ?? '').toString().toUpperCase(),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        fontFamily: 'Inter Bold'
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(item.imageUrl),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "MY INCIDENTS",
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter Bold'),
+              ),
+              const SizedBox(height: 5),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _articles.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final item = _articles[index];
+                    return Container(
+                      height: 136,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFE0E0E0)),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.title,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "${item.author} · ${item.postedOn}",
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children:
+                                      [
+                                        Icons.bookmark_border_rounded,
+                                        Icons.share,
+                                        Icons.more_vert,
+                                      ].map((e) {
+                                        return InkWell(
+                                          onTap: () {},
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 8.0,
+                                            ),
+                                            child: Icon(e, size: 16),
+                                          ),
+                                        );
+                                      }).toList(),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                          Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(item.imageUrl),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

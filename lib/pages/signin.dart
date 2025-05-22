@@ -1,6 +1,7 @@
 import 'package:faun_alert/pages/forgot_password.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Signin extends StatefulWidget {
   final VoidCallback goToSignup;
@@ -17,6 +18,32 @@ class _SigninState extends State<Signin> {
   final FocusNode emailFocusNode = FocusNode();
   final FocusNode passwordFocusNode = FocusNode();
 
+  Future<UserCredential?> loginWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+
+      final googleAuth = await googleUser?.authentication;
+
+      final cred = GoogleAuthProvider.credential(
+        idToken: googleAuth?.idToken,
+        accessToken: googleAuth?.accessToken,
+      );
+
+      return await FirebaseAuth.instance.signInWithCredential(cred);
+    } catch (e) {
+      // Handle Google sign-in errors
+      if (mounted) {
+        // ScaffoldMessenger.of(
+        //   context,
+        // ).showSnackBar(SnackBar(content: Text('Unexpected error: $e')));
+
+        print('Google sign-in error: $e');
+      }
+    }
+
+    return null;
+  }
+
   // function to handle sign in logic
   Future signIn() async {
     String email = emailController.text.trim();
@@ -28,11 +55,12 @@ class _SigninState extends State<Signin> {
         email: email,
         password: password,
       );
+
       // If successful, navigate to the next screen or show a success message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign-in successful!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Sign-in successful!')));
       }
     } on FirebaseAuthException catch (e) {
       // Handle specific Firebase authentication errors
@@ -42,12 +70,13 @@ class _SigninState extends State<Signin> {
       } else if (e.code == 'invalid-email') {
         errorMessage = 'The email address is not valid.';
       } else {
-        errorMessage = e.message != null ? e.message! : 'An unknown error occurred.';
+        errorMessage =
+            e.message != null ? e.message! : 'An unknown error occurred.';
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +134,7 @@ class _SigninState extends State<Signin> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                       border: OutlineInputBorder(),
+                        border: OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -120,7 +149,7 @@ class _SigninState extends State<Signin> {
                           color: Colors.black,
                           fontSize: 16,
                         ),
-                       border: OutlineInputBorder(),
+                        border: OutlineInputBorder(),
                       ),
                       obscureText: true,
                     ),
@@ -129,13 +158,17 @@ class _SigninState extends State<Signin> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: GestureDetector(
-                      onTap: () => {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return ForgotPassword();
-                          }
-                        ))
-                      },
+                      onTap:
+                          () => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ForgotPassword();
+                                },
+                              ),
+                            ),
+                          },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -194,6 +227,26 @@ class _SigninState extends State<Signin> {
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Or sign in with',
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          await loginWithGoogle();
+                        },
+                        child: Image.asset(
+                          'assets/google.png', // Ensure the path is correct
+                          height: 40, // Adjust height as needed
                         ),
                       ),
                     ],

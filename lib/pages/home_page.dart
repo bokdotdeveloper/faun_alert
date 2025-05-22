@@ -49,23 +49,22 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Logo on the left
-            Image.network(
-              'https://placehold.co/200x200/000000/FFFFFF/png', // Replace with your logo asset path
-              height: 40,
-              width: 40,
+            Image.asset(
+              'assets/AppLogo.png', // Ensure the path is correct
+              height: 40, // Adjust height as needed
             ),
             // Notification bell on the right
             IconButton(
               icon: const Icon(Icons.notifications, color: Colors.black),
               onPressed: () {
-                // Add notification logic here
-                print('Notification bell pressed');
+          // Add notification logic here
+          debugPrint('Notification bell pressed'); // Use debugPrint for logging
               },
             ),
           ],

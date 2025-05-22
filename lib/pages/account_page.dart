@@ -62,10 +62,6 @@ class _AccountPageState extends State<AccountPage> {
                 title: "General",
                 children: [
                   _CustomListTile(
-                    title: "Notifications",
-                    icon: Icons.notifications_none_rounded,
-                  ),
-                  _CustomListTile(
                     title: "Profile",
                     icon: Icons.person_outline_rounded,
                   ),

@@ -17,7 +17,7 @@ class _FileReportState extends State<FileReport> {
         actionsPadding: EdgeInsets.all(8),
         title: const Text(
           'File Report',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 18, fontFamily: 'Inter Bold'),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -26,25 +26,26 @@ class _FileReportState extends State<FileReport> {
           },
         ),
         actions: [
-          Image.network(
-              'https://placehold.co/200x200/000000/FFFFFF/png', // Replace with your logo asset path
-              height: 40,
-              width: 40,
+          IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+          // Add notification logic here
+          debugPrint('Notification bell pressed'); // Use debugPrint for logging
+              },
             ),
         ],
       ),
       body: SafeArea(
         child: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 400),
-            padding: const EdgeInsets.all(16),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
                   'Select Incident Type',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontFamily: 'Inter'),
                 ),
                 const SizedBox(height: 16),
                 Expanded(
@@ -120,7 +121,7 @@ class _FileReportState extends State<FileReport> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 14, fontFamily: 'Inter'),
           ),
         ],
       ),

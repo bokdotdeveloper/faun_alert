@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 
 class LawPage extends StatefulWidget {
   const LawPage({super.key});
@@ -8,137 +10,141 @@ class LawPage extends StatefulWidget {
 }
 
 class _LawPageState extends State<LawPage> {
+  final CollectionReference<Map<String, dynamic>> _lawCollection =
+      FirebaseFirestore.instance.collection('laws');
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel(); // Cancel debounce timer if active
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = value.trim().toLowerCase();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: 
-      Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: ListView.builder(
-            itemCount: _articles.length,
-            itemBuilder: (BuildContext context, int index) {
-              final item = _articles[index];
-              return Container(
-                height: 136,
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8.0),
-                decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
-                    borderRadius: BorderRadius.circular(8.0)),
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Text("${item.author} · ${item.postedOn}",
-                            style: Theme.of(context).textTheme.bodySmall),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icons.bookmark_border_rounded,
-                            Icons.share,
-                            Icons.more_vert
-                          ].map((e) {
-                            return InkWell(
-                              onTap: () {},
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Icon(e, size: 16),
-                              ),
-                            );
-                          }).toList(),
-                        )
-                      ],
-                    )),
-                    Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(item.imageUrl),
-                            ))),
-                  ],
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          children: [
+            // Search Field
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search laws...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-              );
-            },
-          ),
-          ),
+              ),
+              onChanged: _onSearchChanged, // Use the debounced handler
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _lawCollection.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: const Text('Loading...'));
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  final laws = snapshot.data?.docs ?? [];
+                  // Filter laws based on search query
+                  final filteredLaws =
+                      _searchQuery.isEmpty
+                          ? laws
+                          : laws.where((law) {
+                            final data = law.data();
+                            final title =
+                                (data['title'] ?? '').toString().toLowerCase();
+                            final description =
+                                (data['description'] ?? '')
+                                    .toString()
+                                    .toLowerCase();
+                            return title.contains(_searchQuery) ||
+                                description.contains(_searchQuery);
+                          }).toList();
+
+                  if (filteredLaws.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No data found.',
+                        style: TextStyle(fontFamily: 'Inter Italic'),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: filteredLaws.length,
+                    itemBuilder: (context, index) {
+                      final law = filteredLaws[index];
+                      final data = law.data();
+                      final title =
+                          ((data['title'] ?? '').toString().toUpperCase())
+                              .trim();
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: Theme(
+                          data: Theme.of(
+                            context,
+                          ).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            leading: const Icon(Icons.gavel, size: 40),
+                            title: Text(
+                              title,
+                              style: const TextStyle(fontFamily: 'Inter Bold'),
+                            ),
+                            tilePadding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            childrenPadding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 8.0,
+                                ),
+                                child: Text(
+                                  data['description'] ?? '',
+                                  style: const TextStyle(
+                                    fontFamily: 'Inter Italic',
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-
-class Article {
-  final String title;
-  final String imageUrl;
-  final String author;
-  final String postedOn;
-
-  Article(
-      {required this.title,
-      required this.imageUrl,
-      required this.author,
-      required this.postedOn});
-}
-
-
-  final List<Article> _articles = [
-  Article(
-    title: "Instagram quietly limits ‘daily time limit’ option",
-    author: "MacRumors",
-    imageUrl: "https://picsum.photos/id/1000/960/540",
-    postedOn: "Yesterday",
-  ),
-  Article(
-      title: "Google Search dark theme goes fully black for some on the web",
-      imageUrl: "https://picsum.photos/id/1010/960/540",
-      author: "9to5Google",
-      postedOn: "4 hours ago"),
-  Article(
-    title: "Check your iPhone now: warning signs someone is spying on you",
-    author: "New York Times",
-    imageUrl: "https://picsum.photos/id/1001/960/540",
-    postedOn: "2 days ago",
-  ),
-  Article(
-    title:
-        "Amazon’s incredibly popular Lost Ark MMO is ‘at capacity’ in central Europe",
-    author: "MacRumors",
-    imageUrl: "https://picsum.photos/id/1002/960/540",
-    postedOn: "22 hours ago",
-  ),
-  Article(
-    title:
-        "Panasonic's 25-megapixel GH6 is the highest resolution Micro Four Thirds camera yet",
-    author: "Polygon",
-    imageUrl: "https://picsum.photos/id/1020/960/540",
-    postedOn: "2 hours ago",
-  ),
-  Article(
-    title: "Samsung Galaxy S22 Ultra charges strangely slowly",
-    author: "TechRadar",
-    imageUrl: "https://picsum.photos/id/1021/960/540",
-    postedOn: "10 days ago",
-  ),
-  Article(
-    title: "Snapchat unveils real-time location sharing",
-    author: "Fox Business",
-    imageUrl: "https://picsum.photos/id/1060/960/540",
-    postedOn: "10 hours ago",
-  ),
-];

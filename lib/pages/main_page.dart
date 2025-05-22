@@ -15,7 +15,6 @@ class MainPage extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            print('User is logged in: ${snapshot.data!.uid}'); // Debugging log
             return FutureBuilder<DocumentSnapshot>(
               future:
                   FirebaseFirestore.instance
@@ -28,7 +27,6 @@ class MainPage extends StatelessWidget {
                 }
                 if (userSnapshot.hasData && userSnapshot.data!.exists) {
                   final userRole = userSnapshot.data!.get('role') ?? 'user';
-                  print('User role: $userRole'); // Debugging log
                   if (userRole == 'admin') {
                     return HomeMain();
                   } else {

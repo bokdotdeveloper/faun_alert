@@ -1,0 +1,7 @@
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/Loading_Page.png
+
+  ios: true
+
+  web: false

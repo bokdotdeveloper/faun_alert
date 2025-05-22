@@ -1,9 +1,8 @@
+import "package:faun_alert/admin/pages/animals.dart";
 import "package:faun_alert/admin/pages/dashboard.dart";
+import "package:faun_alert/admin/pages/law.dart";
 import "package:faun_alert/admin/pages/profile.dart";
-import "package:faun_alert/admin/pages/reports.dart";
-import "package:faun_alert/admin/pages/users.dart";
 import "package:flutter/material.dart";
-
 
 class HomeMain extends StatefulWidget {
   const HomeMain({super.key});
@@ -18,16 +17,15 @@ const _navBarItems = [
     activeIcon: Icon(Icons.dashboard_rounded),
     label: 'Dashboard',
   ),
-
-    BottomNavigationBarItem(
-    icon: Icon(Icons.people_alt_outlined),
-    activeIcon: Icon(Icons.people_alt_rounded),
-    label: 'Users',
+  BottomNavigationBarItem(
+    icon: Icon(Icons.pets_outlined),
+    activeIcon: Icon(Icons.pets_rounded),
+    label: 'Animals',
   ),
     BottomNavigationBarItem(
-    icon: Icon(Icons.report_outlined),
-    activeIcon: Icon(Icons.report_rounded),
-    label: 'Reports',
+    icon: Icon(Icons.gavel_outlined),
+    activeIcon: Icon(Icons.gavel_rounded),
+    label: 'Laws',
   ),
   BottomNavigationBarItem(
     icon: Icon(Icons.supervised_user_circle_outlined),
@@ -39,21 +37,45 @@ const _navBarItems = [
 class _HomeMainState extends State<HomeMain> {
   int _selectedIndex = 0;
 
-   final List<Widget> _pages = [
+  final List<Widget> _pages = [
     const Dashboard(), // Placeholder for Home Page
-    const Users(), // Placeholder for Laws Page
-    const Reports(),
+    const Animals(),
+    const Law(),
     const Profile(), // Account Page
   ];
 
   @override
   Widget build(BuildContext context) {
-
     final width = MediaQuery.of(context).size.width;
     final bool isSmallScreen = width < 600;
     final bool isLargeScreen = width > 800;
 
     return Scaffold(
+      appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Logo on the left
+            Image.asset(
+              'assets/AppLogo.png', // Ensure the path is correct
+              height: 40, // Adjust height as needed
+            ),
+            // Notification bell on the right
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                // Add notification logic here
+                debugPrint(
+                  'Notification bell pressed',
+                ); // Use debugPrint for logging
+              },
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar:
           isSmallScreen
               ? BottomNavigationBar(
@@ -67,7 +89,6 @@ class _HomeMainState extends State<HomeMain> {
                 },
               )
               : null,
-
       body: SafeArea(
         child: Center(
           child: Row(
@@ -92,9 +113,14 @@ class _HomeMainState extends State<HomeMain> {
                           )
                           .toList(),
                 ),
-              const VerticalDivider(thickness: 1, width: 1),
+              const VerticalDivider(thickness: 1, width: 1, color: Colors.lightGreen,),
               // This is the main content.
-              Expanded(child: _pages[_selectedIndex]),
+              Expanded(
+                child: Container(
+                  color: Colors.lightGreen, // Match the AppBar background color
+                  child: _pages[_selectedIndex],
+                ),
+              ),
             ],
           ),
         ),

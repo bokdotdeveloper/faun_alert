@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'faun-alert.firebasestorage.app',
     measurementId: 'G-7VQ197589E',
   );
+
 }

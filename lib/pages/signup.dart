@@ -76,6 +76,7 @@ class _SignupState extends State<Signup> {
           firstnameController.text.trim(),
           middlenameController.text.trim(),
           lastnameController.text.trim(),
+          emailController.text.trim(),
         );
 
         if (mounted) {
@@ -103,6 +104,7 @@ class _SignupState extends State<Signup> {
     String firstname,
     String middlename,
     String lastname,
+    String email
   ) async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -112,6 +114,7 @@ class _SignupState extends State<Signup> {
         'firstname': firstname,
         'middlename': middlename,
         'lastname': lastname,
+        'email': email,
         'role': 'user', // Default role
         'dateCreated': DateTime.now(),
       });

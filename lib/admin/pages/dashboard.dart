@@ -1,3 +1,5 @@
+import 'package:faun_alert/admin/pages/reports.dart';
+import 'package:faun_alert/admin/pages/users.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatefulWidget {
@@ -8,52 +10,301 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  var items = ["Users", "Reports"];
 
-  var items = [
-    "Users",
-    "Reports",
-  ];
-
-  var icons = [
-    Icons.person,
-    Icons.report,
-  ];
-
+  var icons = [Icons.person, Icons.report];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(items.length, (index) {
-                  return Column(
-                    children: [
-                      Card(
-                        children: [
-                          Icon(icons[index], size: 50),
-                          SizedBox(height: 10),
-                          Text(items[index], style: TextStyle(fontSize: 20)),
-                        ],
-                      ),
-                    ],
-                  );
-                }),
-              ),
-              SizedBox(height: 20),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text("Recent Reports", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  children: [userCard(), reportsCard()],
                 ),
-              ),
-            ],
+                Expanded(child: verifiedCard()),
+                const SizedBox(height: 5),
+                const Text(
+                  "RECENT REPORTS",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w100,
+                    fontFamily: 'Inter Bold',
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Expanded(
+                  child: Container(
+                    child: ListView.builder(
+                      itemCount: _articles.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final item = _articles[index];
+                        return Container(
+                          height: 136,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: const Color(0xFFE0E0E0)),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Inter',
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "${item.author} · ${item.postedOn}",
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children:
+                                          [
+                                            Icons.bookmark_border_rounded,
+                                            Icons.share,
+                                            Icons.more_vert,
+                                          ].map((e) {
+                                            return InkWell(
+                                              onTap: () {},
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 8.0,
+                                                ),
+                                                child: Icon(e, size: 16),
+                                              ),
+                                            );
+                                          }).toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(
+                                    255,
+                                    255,
+                                    255,
+                                    255,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(item.imageUrl),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget userCard() => GestureDetector(
+    onTap: () {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => Users()));
+    },
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '200',
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter Bold'),
+              ),
+              Text(
+                'Users',
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter'),
+              ),
+            ],
+          ),
+          Icon(Icons.group, size: 28),
+        ],
+      ),
+    ),
+  );
+
+  Widget reportsCard() => GestureDetector(
+    onTap: () {
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (context) => Reports()));
+    },
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '200',
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter Bold'),
+              ),
+              Text(
+                'Reports',
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter'),
+              ),
+            ],
+          ),
+          Icon(Icons.file_copy, size: 28),
+        ],
+      ),
+    ),
+  );
+
+  Widget verifiedCard() => GestureDetector(
+    onTap: () {},
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '200',
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter Bold'),
+              ),
+              Text(
+                'Verified',
+                style: TextStyle(fontSize: 20, fontFamily: 'Inter'),
+              ),
+            ],
+          ),
+          Icon(Icons.verified, size: 28, color: Colors.green),
+        ],
+      ),
+    ),
+  );
 }
+
+class Article {
+  final String title;
+  final String imageUrl;
+  final String author;
+  final String postedOn;
+
+  Article({
+    required this.title,
+    required this.imageUrl,
+    required this.author,
+    required this.postedOn,
+  });
+}
+
+final List<Article> _articles = [
+  Article(
+    title: "Instagram quietly limits ‘daily time limit’ option",
+    author: "MacRumors",
+    imageUrl: "https://picsum.photos/id/1000/960/540",
+    postedOn: "Yesterday",
+  ),
+  Article(
+    title: "Google Search dark theme goes fully black for some on the web",
+    imageUrl: "https://picsum.photos/id/1010/960/540",
+    author: "9to5Google",
+    postedOn: "4 hours ago",
+  ),
+  Article(
+    title: "Check your iPhone now: warning signs someone is spying on you",
+    author: "New York Times",
+    imageUrl: "https://picsum.photos/id/1001/960/540",
+    postedOn: "2 days ago",
+  ),
+  Article(
+    title:
+        "Amazon’s incredibly popular Lost Ark MMO is ‘at capacity’ in central Europe",
+    author: "MacRumors",
+    imageUrl: "https://picsum.photos/id/1002/960/540",
+    postedOn: "22 hours ago",
+  ),
+  Article(
+    title:
+        "Panasonic's 25-megapixel GH6 is the highest resolution Micro Four Thirds camera yet",
+    author: "Polygon",
+    imageUrl: "https://picsum.photos/id/1020/960/540",
+    postedOn: "2 hours ago",
+  ),
+  Article(
+    title: "Samsung Galaxy S22 Ultra charges strangely slowly",
+    author: "TechRadar",
+    imageUrl: "https://picsum.photos/id/1021/960/540",
+    postedOn: "10 days ago",
+  ),
+  Article(
+    title: "Snapchat unveils real-time location sharing",
+    author: "Fox Business",
+    imageUrl: "https://picsum.photos/id/1060/960/540",
+    postedOn: "10 hours ago",
+  ),
+];

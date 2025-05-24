@@ -23,7 +23,7 @@ class MainPage extends StatelessWidget {
                       .get(),
               builder: (context, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: const Text('Loading...'));
                 }
                 if (userSnapshot.hasData && userSnapshot.data!.exists) {
                   final userRole = userSnapshot.data!.get('role') ?? 'user';

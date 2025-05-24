@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 
-class SightingPage extends StatefulWidget {
-  const SightingPage({super.key});
+class IllegalHunting extends StatefulWidget {
+  const IllegalHunting({super.key});
 
   @override
-  State<SightingPage> createState() => _SightingPageState();
+  State<IllegalHunting> createState() => _IllegalHuntingState();
 }
 
-class _SightingPageState extends State<SightingPage> {
+class _IllegalHuntingState extends State<IllegalHunting> {
+
   final List<String> _categories = [
     'All',
     'Mammals',
@@ -54,12 +55,8 @@ class _SightingPageState extends State<SightingPage> {
         centerTitle: true,
         actionsPadding: EdgeInsets.all(8),
         title: const Text(
-          'Sighting',
-          style: TextStyle(
-            fontSize: 18,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.bold,
-          ),
+          'Illegal Hunting',
+          style: TextStyle(fontSize: 18, fontFamily: 'Inter', fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -181,7 +178,8 @@ class _SightingPageState extends State<SightingPage> {
                               return matchesSearch;
                             }
                             final categories =
-                                (data['animal_type'] ?? []) as List<dynamic>;
+                                (data['animal_type'] ?? [])
+                                    as List<dynamic>;
                             return matchesSearch &&
                                 categories
                                     .map((e) => e.toString())
@@ -221,11 +219,11 @@ class _SightingPageState extends State<SightingPage> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
                               onTap: () {
-                                Navigator.push(
+                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) {
-                                      return FileReportConfirm(animalId: animal.id, incidentType: 'sighting', initialData: data);
+                                      return FileReportConfirm(animalId: animal.id, incidentType: 'illegal hunting', initialData: data);
                                     },
                                   ),
                                 );

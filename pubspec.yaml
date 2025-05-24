@@ -51,6 +51,9 @@ dependencies:
   google_sign_in: ^6.3.0
   provider: ^6.1.5
   transparent_image: ^2.0.1
+  google_maps_flutter: ^2.12.2
+  geolocator: ^14.0.0
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +84,10 @@ flutter:
     - assets/google.png
     - assets/icon/icon.png
     - assets/Loading_Page.png
+    - assets/sighting.png
+    - assets/illegal_hunting.png
+    - assets/exploitation.png
+    - assets/habitat_destruction.png
     # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

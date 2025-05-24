@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 
-class SightingPage extends StatefulWidget {
-  const SightingPage({super.key});
+class HabitatDestruction extends StatefulWidget {
+  const HabitatDestruction({super.key});
 
   @override
-  State<SightingPage> createState() => _SightingPageState();
+  State<HabitatDestruction> createState() => _HabitatDestructionState();
 }
 
-class _SightingPageState extends State<SightingPage> {
+class _HabitatDestructionState extends State<HabitatDestruction> {
   final List<String> _categories = [
     'All',
     'Mammals',
@@ -54,12 +54,8 @@ class _SightingPageState extends State<SightingPage> {
         centerTitle: true,
         actionsPadding: EdgeInsets.all(8),
         title: const Text(
-          'Sighting',
-          style: TextStyle(
-            fontSize: 18,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.bold,
-          ),
+          'Habitat Destruction',
+          style: TextStyle(fontSize: 18, fontFamily: 'Inter', fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -225,7 +221,7 @@ class _SightingPageState extends State<SightingPage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) {
-                                      return FileReportConfirm(animalId: animal.id, incidentType: 'sighting', initialData: data);
+                                      return FileReportConfirm(animalId: animal.id, incidentType: 'habitat destruction', initialData: data);
                                     },
                                   ),
                                 );

@@ -1,3 +1,6 @@
+import 'package:faun_alert/file_report/exploitation.dart';
+import 'package:faun_alert/file_report/habitat_destruction.dart';
+import 'package:faun_alert/file_report/illegal_hunting.dart';
 import 'package:faun_alert/file_report/sighting_page.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +20,7 @@ class _FileReportState extends State<FileReport> {
         actionsPadding: EdgeInsets.all(8),
         title: const Text(
           'File Report',
-          style: TextStyle(fontSize: 18, fontFamily: 'Inter Bold'),
+          style: TextStyle(fontSize: 18, fontFamily: 'Inter', fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -55,7 +58,7 @@ class _FileReportState extends State<FileReport> {
                     mainAxisSpacing: 16,
                     children: [
                       _buildGridButton(
-                        icon: Icons.visibility,
+                        image: 'assets/sighting.png',
                         label: 'Sighting',
                         onPressed: () {
                           Navigator.push(
@@ -69,24 +72,45 @@ class _FileReportState extends State<FileReport> {
                         },
                       ),
                       _buildGridButton(
-                        icon: Icons.lock,
+                        image: 'assets/exploitation.png',
                         label: 'Exploitation',
                         onPressed: () {
-                          // Handle Exploitation action
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return Exploitation();
+                              },
+                            ),
+                          );
                         },
                       ),
                       _buildGridButton(
-                        icon: Icons.track_changes_outlined,
+                        image: 'assets/illegal_hunting.png',
                         label: 'Illegal Hunting',
                         onPressed: () {
-                          // Handle Illegal Hunting action
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return IllegalHunting();
+                              },
+                            ),
+                          );
                         },
                       ),
                       _buildGridButton(
-                        icon: Icons.forest,
+                        image: 'assets/habitat_destruction.png',
                         label: 'Habitat Destruction',
                         onPressed: () {
-                          // Handle Habitat Destruction action
+                           Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HabitatDestruction();
+                              },
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -101,7 +125,7 @@ class _FileReportState extends State<FileReport> {
   }
 
   Widget _buildGridButton({
-    required IconData icon,
+    required String image,
     required String label,
     required VoidCallback onPressed,
   }) {
@@ -116,7 +140,7 @@ class _FileReportState extends State<FileReport> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 40, color: Colors.green[800]),
+          Image.asset(image, height: 60, width: 60),
           const SizedBox(height: 8),
           Text(
             label,
